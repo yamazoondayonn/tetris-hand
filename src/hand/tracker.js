@@ -74,12 +74,27 @@ export class HandTracker {
             });
             
             // ジェスチャー認識
-            const gesture = this.recognizeGesture(landmarks);
-            this.handleGesture(gesture);
+            const gestureName = this.recognizeGesture(landmarks); // "グー", "チョキ", "パー" または null を返す
+            let action = null;
+
+            // ジェスチャー名に対応するアクションを割り当てる
+            switch (gestureName) {
+                case 'グー':
+                    action = 'rotate';
+                    break;
+                case 'チョキ':
+                    action = 'right';
+                    break;
+                case 'パー':
+                    action = 'left';
+                    break;
+            }
+
+            this.handleGesture(action);
             
             // ステータス更新
             document.getElementById('hand-status').textContent = '検出中';
-            document.getElementById('gesture-type').textContent = gesture || '-';
+            document.getElementById('gesture-type').textContent = gestureName || '-'; // UIにはジェスチャー名を表示
         } else {
             document.getElementById('hand-status').textContent = '未検出';
             document.getElementById('gesture-type').textContent = '-';
@@ -89,52 +104,35 @@ export class HandTracker {
     }
     
     recognizeGesture(landmarks) {
-        // 手首と中指の付け根の座標を取得
-        const wrist = landmarks[0];
-        const middleBase = landmarks[9];
-        
-        // 手の傾きを計算
-        const angle = Math.atan2(middleBase.y - wrist.y, middleBase.x - wrist.x) * 180 / Math.PI;
-        
-        // 人差し指の状態をチェック
-        const indexTip = landmarks[8];
-        const indexBase = landmarks[5];
-        const indexExtended = indexTip.y < indexBase.y - 0.1;
-        
-        // ジェスチャー判定
-        if (indexExtended && this.isOnlyIndexExtended(landmarks)) {
-            return 'rotate';
-        } else if (angle < -30) {
-            return 'right'; // 画面上では左右反転
-        } else if (angle > 30) {
-            return 'left';  // 画面上では左右反転
-        } else if (wrist.y < middleBase.y - 0.1) {
-            return 'down';
+        // 各指が伸びているかを判定するフラグ
+        // 指先(tip)が第二関節(pip)より上(y座標が小さい)にあるかで判定
+        const isIndexExtended = landmarks[8].y < landmarks[6].y;
+        const isMiddleExtended = landmarks[12].y < landmarks[10].y;
+        const isRingExtended = landmarks[16].y < landmarks[14].y;
+        const isPinkyExtended = landmarks[20].y < landmarks[18].y;
+
+        // パー: 人差し指、中指、薬指、小指がすべて伸びている
+        if (isIndexExtended && isMiddleExtended && isRingExtended && isPinkyExtended) {
+            return 'パー';
         }
         
-        return null;
-    }
-    
-    isOnlyIndexExtended(landmarks) {
-        // 各指の状態をチェック
-        const fingers = [
-            { tip: 4, base: 2 },   // 親指
-            { tip: 8, base: 5 },   // 人差し指
-            { tip: 12, base: 9 },  // 中指
-            { tip: 16, base: 13 }, // 薬指
-            { tip: 20, base: 17 }  // 小指
-        ];
+        // チョキ: 人差し指と中指が伸びていて、薬指と小指が曲がっている
+        if (isIndexExtended && isMiddleExtended && !isRingExtended && !isPinkyExtended) {
+            return 'チョキ';
+        }
         
-        const extended = fingers.map((finger, index) => {
-            if (index === 0) { // 親指は横方向で判定
-                return Math.abs(landmarks[finger.tip].x - landmarks[finger.base].x) > 0.1;
-            } else {
-                return landmarks[finger.tip].y < landmarks[finger.base].y - 0.05;
-            }
-        });
+        // グー: 4本の指がすべて曲がっている
+        // 指先(tip)が付け根(mcp)より下(y座標が大きい)にあるかで判定
+        const isFist = landmarks[8].y > landmarks[5].y &&
+                       landmarks[12].y > landmarks[9].y &&
+                       landmarks[16].y > landmarks[13].y &&
+                       landmarks[20].y > landmarks[17].y;
+
+        if (isFist) {
+            return 'グー';
+        }
         
-        // 人差し指だけが伸びている
-        return extended[1] && !extended[2] && !extended[3] && !extended[4];
+        return null; // 認識されたジェスチャーがない場合
     }
     
     handleGesture(gesture) {
