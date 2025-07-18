@@ -114,6 +114,77 @@ npm run dev
 npx vite --host 0.0.0.0
 ```
 
+## 自分のGitHubリポジトリに保存する方法
+
+プログラムをカスタマイズした後、自分のGitHubアカウントに保存する手順：
+
+### 1. GitHubで新しいリポジトリを作成
+1. [GitHub](https://github.com)にログイン
+2. 右上の「+」アイコン → 「New repository」
+3. 設定：
+   - Repository name: `my-tetris-hand`（好きな名前でOK）
+   - Description: 「手の動きで操作するテトリスゲーム」など
+   - Public または Private を選択
+   - **重要**: 「Add a README file」のチェックは**外す**
+4. 「Create repository」をクリック
+
+### 2. Codespacesで以下のコマンドを実行
+
+```bash
+# Gitリポジトリとして初期化（まだの場合）
+git init
+
+# すべてのファイルをステージング
+git add .
+
+# 初回コミット
+git commit -m "手の動きで操作するテトリスゲームを作成"
+
+# 自分のリポジトリに接続（YOUR_USERNAMEは自分のGitHubユーザー名に置き換える）
+git remote add origin https://github.com/YOUR_USERNAME/my-tetris-hand.git
+
+# mainブランチに設定
+git branch -M main
+
+# GitHubにプッシュ
+git push -u origin main
+```
+
+### 3. 今後の変更を保存する場合
+
+```bash
+# 変更したファイルを確認
+git status
+
+# 変更をステージング
+git add .
+
+# コミット（変更内容を説明するメッセージを書く）
+git commit -m "ジェスチャーの感度を調整"
+
+# GitHubにプッシュ
+git push
+```
+
+### よくあるエラーと対処法
+
+**認証エラーが出る場合**
+```bash
+# GitHubのユーザー名とメールを設定
+git config --global user.name "あなたのGitHubユーザー名"
+git config --global user.email "あなたのメールアドレス"
+```
+
+**リモートリポジトリが既に存在する場合**
+```bash
+# 既存のリモート設定を確認
+git remote -v
+
+# 既存のリモートを削除して再設定
+git remote remove origin
+git remote add origin https://github.com/YOUR_USERNAME/my-tetris-hand.git
+```
+
 ## プロジェクト構成
 
 ```
