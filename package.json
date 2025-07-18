@@ -12,8 +12,8 @@
     "vite": "^4.5.0"
   },
   "dependencies": {
-    "@mediapipe/camera_utils": "^0.3.1697475358",
-    "@mediapipe/drawing_utils": "^0.3.1697475358",
-    "@mediapipe/hands": "^0.4.1697475358"
+    "@mediapipe/camera_utils": "^0.3.0",
+    "@mediapipe/drawing_utils": "^0.3.0",
+    "@mediapipe/hands": "^0.4.0"
   }
 }

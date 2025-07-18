@@ -37,12 +37,23 @@ cd tetris-hand
 
 # 2. このリポジトリのファイルをコピー（既存のファイルがある場合はスキップ）
 # ファイルがすでにある場合は、この手順をスキップしてください
+git clone https://github.com/itoksk/tetris-hand.git temp_clone
+cp -r temp_clone/* .
+cp -r temp_clone/.* . 2>/dev/null || true
+rm -rf temp_clone
 
-# 3. 依存関係のインストール
+# 3. 依存関係のインストール前にクリーンアップ（推奨）
+rm -rf node_modules package-lock.json
+npm cache clean --force
+
+# 4. 依存関係のインストール
 npm install
 
-# 4. 開発サーバーの起動
+# 5. 開発サーバーの起動
 npm run dev
+
+# もしnpm run devでエラーが出る場合は以下を実行
+npx vite --host 0.0.0.0
 ```
 
 ### 3. アプリケーションへのアクセス
@@ -77,13 +88,25 @@ npm run dev
 Codespacesターミナルで以下のコマンドをコピー&ペーストして実行：
 
 ```bash
+# クリーンな環境から始める
+rm -rf node_modules package-lock.json
+npm cache clean --force
+
+# 初期化とパッケージインストール
 npm init -y
 npm install --save-dev vite
 npm install @mediapipe/hands @mediapipe/camera_utils @mediapipe/drawing_utils
+
+# スクリプトの設定
 npm pkg set scripts.dev="vite"
 npm pkg set scripts.build="vite build"
 npm pkg set scripts.preview="vite preview"
+
+# 開発サーバーの起動
 npm run dev
+
+# もしエラーが出る場合は
+npx vite --host 0.0.0.0
 ```
 
 ## プロジェクト構成
